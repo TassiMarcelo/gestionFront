@@ -15,6 +15,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { UserForm } from './user-form'
 import { UserView } from './user-view'
+import Modal from './Modal'
 import type { User } from '../types/user'
 
 const initialUsers: User[] = [
@@ -28,8 +29,7 @@ const initialUsers: User[] = [
     preferencia: true,
     usuario: 'jperez',
     password: '********'
-  },
-  // Añade más usuarios aquí
+  }
 ]
 
 export function UserTable() {
@@ -39,6 +39,9 @@ export function UserTable() {
   const [showView, setShowView] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null); 
+
   const filteredUsers = users.filter(user => 
     Object.values(user).some(value => 
       value.toString().toLowerCase().includes(search.toLowerCase())
@@ -46,8 +49,15 @@ export function UserTable() {
   )
 
   const handleDelete = (id: string) => {
-    if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-      setUsers(users.filter(user => user.id !== id))
+    setUserToDelete(id);
+    setIsModalOpen(true);
+  }
+
+  const confirmDelete = () => {
+    if (userToDelete) {
+      setUsers(users.filter(user => user.id !== userToDelete))
+      setUserToDelete(null); 
+      setIsModalOpen(false); 
     }
   }
 
@@ -75,12 +85,12 @@ export function UserTable() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div className="relative w-72">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-800" />
           <Input
             placeholder="Buscar usuarios..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8"
+            className="pl-8 placeholder:text-gray-800"
           />
         </div>
         <Button onClick={() => setShowForm(true)}>
@@ -89,32 +99,34 @@ export function UserTable() {
         </Button>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border border-black">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Cuil</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Empresa</TableHead>
-              <TableHead>Descripción</TableHead>
-              <TableHead>Preferencia</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+              <TableHead className="text-center border border-black text-black">Cuil</TableHead>
+              <TableHead className="text-center border border-black text-black">Email</TableHead>
+              <TableHead className="text-center border border-black text-black">Nombre</TableHead>
+              <TableHead className="text-center border border-black text-black">Empresa</TableHead>
+              <TableHead className="text-center border border-black text-black">Descripción</TableHead>
+              <TableHead className="text-center border border-black text-black">Preferencia</TableHead>
+              <TableHead className="text-center border border-black text-black">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredUsers.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.cuil}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.nombre}</TableCell>
-                <TableCell>{user.empresa}</TableCell>
-                <TableCell>{user.descripcion}</TableCell>
-                <TableCell>
-                  <Checkbox checked={user.preferencia} disabled />
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
+              <TableRow key={user.id} className="h-[56px]">
+                <TableCell className="text-center border border-black">{user.cuil}</TableCell>
+                <TableCell className="text-center border border-black">{user.email}</TableCell>
+                <TableCell className="text-center border border-black">{user.nombre}</TableCell>
+                <TableCell className="text-center border border-black">{user.empresa}</TableCell>
+                <TableCell className="text-center border border-black">{user.descripcion}</TableCell>
+                <TableCell className="text-center border border-black align-middle">
+        <div className="flex items-center justify-center">
+          <Checkbox checked={user.preferencia} disabled/>
+        </div>
+      </TableCell>
+                <TableCell className="text-center border border-black">
+                  <div className="flex items-center justify-center">
                     <Button variant="ghost" size="icon" onClick={() => handleView(user)}>
                       <Eye className="h-4 w-4" />
                     </Button>
@@ -152,6 +164,19 @@ export function UserTable() {
           }}
         />
       )}
+
+<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <h2>¿Estás seguro de que deseas eliminar este usuario?</h2>
+        <div className="flex justify-between gap-4 mt-4">
+          <Button onClick={() => setIsModalOpen(false)} variant="outline">
+            Cancelar
+          </Button>
+          <Button onClick={confirmDelete} variant="destructive">
+            Confirmar
+          </Button>
+        </div>
+      </Modal>
+
     </div>
   )
 }
