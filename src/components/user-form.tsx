@@ -48,13 +48,31 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
     setIsCancelModalOpen(false);
   }
 
+  const [errorMessage, setErrorMessage] = useState('');
+
+const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const password = e.target.value;
+  setFormData({ ...formData, password });
+  
+  // Validación básica (puedes mejorarlo con regex o librerías adicionales)
+  if (password.length < 8) {
+    setErrorMessage('La contraseña debe tener al menos 8 caracteres.');
+  } else if (!/[A-Z]/.test(password)) {
+    setErrorMessage('La contraseña debe contener al menos una letra mayúscula.');
+  } else if (!/[0-9]/.test(password)) {
+    setErrorMessage('La contraseña debe contener al menos un número.');
+  } else if (!/[!@#$%^&*]/.test(password)) {
+    setErrorMessage('La contraseña debe incluir un carácter especial (!@#$%^&*)');
+  } else {
+    setErrorMessage('');
+  }
+};
+
   return (
     <>
-      {/* Contenedor para centrar el formulario con un tamaño más pequeño */}
-      <div className="flex justify-center items-center fixed inset-0 z-10">
-        <div className="w-full max-w-[425px] max-h-[95vh] bg-white p-4 rounded-md shadow-lg">
-          <form onSubmit={handleSubmit} className="space-y-4 mt-0">
-          <div className="grid gap-2">
+<div className="flex justify-center items-center fixed inset-0 z-10">
+<div className={`w-full max-w-[425px] max-h-[95vh] bg-white p-4 rounded-md shadow-lg ${errorMessage ? 'scroll-hidden' : ''}`}>
+<form onSubmit={handleSubmit} className="space-y-4 mt-0 flex flex-col min-h-full">          <div className="grid gap-2">
   <Label htmlFor="nombre">Nombre Completo</Label>
   <Input
     id="nombre"
@@ -113,15 +131,20 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required={!user}
-              />
-            </div>
+    <Label htmlFor="password">Contraseña</Label>
+    <Input
+      id="password"
+      type="password"
+      value={formData.password}
+      onChange={handlePasswordChange}
+      required={!user}
+      minLength={8}
+      maxLength={20}
+      pattern="^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*.,:\-])[A-Za-z0-9!@#$%^&*.,:\-]{8,20}$"
+      title="La contraseña debe tener entre 8 y 20 caracteres, incluir al menos una letra mayúscula, un número y un carácter especial."
+    />
+    {errorMessage && <span className="text-red-500 text-sm">{errorMessage}</span>}
+  </div>
             <div className="grid gap-2">
               <Label htmlFor="descripcion">Descripción</Label>
               <Input
@@ -140,7 +163,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
               />
               <Label htmlFor="preferencia">Preferencia</Label>
             </div>
-            <div className="flex justify-end space-x-2 mt-4">
+            <div className="flex justify-end space-x-4 mt-4"> {/* Aquí cambiamos space-x-4 por space-x-2 */}
               <Button type="button" variant="outline" onClick={handleCancel}>
                 Cancelar
               </Button>
@@ -155,8 +178,9 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
       {/* Modal que aparece sobre el formulario */}
       <Modal isOpen={isCancelModalOpen} onClose={cancelCancel}>
         <div className="z-50">
-          <h2>¿Estás seguro de que deseas cancelar la creación del usuario?</h2>
-          <div className="flex justify-between gap-4 mt-4">
+          <h2>{user ? "¿Estás seguro de que deseas cancelar la edición del usuario?" : "¿Estás seguro de que deseas cancelar la creación del usuario?"}
+          </h2>
+          <div className="flex justify-center gap-2 mt-4 space-x-16">
             <Button onClick={cancelCancel} variant="outline">
               No
             </Button>

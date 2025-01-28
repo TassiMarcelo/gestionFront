@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
  
+
+  @layer base {
+    /* La clase para ocultar la barra de scroll pero permitir desplazamiento */
+    .scroll-hidden {
+      overflow-y: scroll; /* Siempre habilita el scroll */
+      -ms-overflow-style: none;  /* Para IE y Edge */
+      scrollbar-width: none; /* Para Firefox */
+    }
+  
+    /* Para navegadores Webkit (Chrome, Safari, etc.) */
+    .scroll-hidden::-webkit-scrollbar {
+      display: none; /* Ocultar la barra de desplazamiento completamente */
+    }
+  }
+
 @layer base {
   :root {
     --background: 0 0% 85%;

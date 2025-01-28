@@ -167,7 +167,7 @@ export function UserTable() {
 
 <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <h2>¿Estás seguro de que deseas eliminar este usuario?</h2>
-        <div className="flex justify-between gap-4 mt-4">
+        <div className="flex justify-center gap-2 mt-4 space-x-16">
           <Button onClick={() => setIsModalOpen(false)} variant="outline">
             Cancelar
           </Button>
