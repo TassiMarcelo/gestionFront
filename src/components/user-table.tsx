@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Eye, Pencil, Trash2, Search, Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,7 +17,7 @@ import { UserForm } from './user-form'
 import { UserView } from './user-view'
 import Modal from './Modal'
 import type { User } from '../types/user'
-
+/*
 const initialUsers: User[] = [
   {
     id: '1',
@@ -31,9 +31,9 @@ const initialUsers: User[] = [
     password: '********'
   }
 ]
-
+*/
 export function UserTable() {
-  const [users, setUsers] = useState<User[]>(initialUsers)
+  const [users, setUsers] = useState<User[]>([])
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [showView, setShowView] = useState(false)
@@ -41,6 +41,24 @@ export function UserTable() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null); 
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/usuarios/todos')
+        const data = await response.json()
+
+        if (data.message === "Usuarios") {
+          setUsers(data.data)
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error)
+      }
+    }
+
+    fetchUsers()
+  }, [])
+
 
   const filteredUsers = users.filter(user => 
     Object.values(user).some(value => 
@@ -75,7 +93,7 @@ export function UserTable() {
     if (selectedUser) {
       setUsers(users.map(u => u.id === user.id ? user : u))
     } else {
-      setUsers([...users, { ...user, id: Date.now().toString() }])
+      setUsers([{ ...user, id: Date.now().toString() },...users])
     }
     setShowForm(false)
     setSelectedUser(null)

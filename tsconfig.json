@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
-    // ... otras opciones ...
+    "target": "ES6", 
+    "lib": ["ES2015", "DOM"], 
+    "strict": true,
+    "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

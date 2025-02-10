@@ -30,11 +30,45 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSave(formData as User)
-  }
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    // Validación de datos (por ejemplo, para asegurarse de que la contraseña cumpla los requisitos)
+    if (errorMessage) {
+      return; // Si hay un mensaje de error en la contraseña, no enviamos el formulario
+    }
+  
+    try {
+      const response = await fetch('http://localhost:8080/usuarios/registrar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cuil: formData.cuil,
+          email: formData.email,
+          nombre: formData.nombre,
+          empresa: formData.empresa,
+          descripcion: formData.descripcion,
+          preferencia: formData.preferencia,
+          usuario: formData.usuario,  // Asegúrate de enviar "usuario" como el nombre de campo
+          password: formData.password,  // Enviar la contraseña sin encriptar
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        onSave(data.data); // Llamar a la función onSave pasando los datos que devuelve el backend
+      } else {
+        alert('Error al registrar usuario: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+      alert('Hubo un problema con la conexión');
+    }
+  };
+  
   const handleCancel = () => {
     setIsCancelModalOpen(true);
   }
@@ -167,9 +201,9 @@ const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <Button type="button" variant="outline" onClick={handleCancel}>
                 Cancelar
               </Button>
-              <Button type="submit">
-                {user ? 'Guardar cambios' : 'Crear usuario'}
-              </Button>
+              <Button type="submit" onClick={handleSubmit}>
+                  {user ? 'Guardar cambios' : 'Crear usuario'}
+            </Button>
             </div>
           </form>
         </div>
