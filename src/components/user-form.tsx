@@ -20,6 +20,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
       cuil: '',
       email: '',
       nombre: '',
+      apellido: '',
       empresa: '',
       descripcion: '',
       preferencia: false,
@@ -29,15 +30,15 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
   )
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    // Validación de datos (por ejemplo, para asegurarse de que la contraseña cumpla los requisitos)
+
     if (errorMessage) {
-      return; // Si hay un mensaje de error en la contraseña, no enviamos el formulario
+      return;
     }
-  
+
     try {
       const response = await fetch('http://localhost:8080/usuarios/registrar', {
         method: 'POST',
@@ -48,18 +49,19 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
           cuil: formData.cuil,
           email: formData.email,
           nombre: formData.nombre,
+          apellido: formData.apellido,
           empresa: formData.empresa,
           descripcion: formData.descripcion,
           preferencia: formData.preferencia,
-          username: formData.username,  // Asegúrate de enviar "usuario" como el nombre de campo
-          password: formData.password,  // Enviar la contraseña sin encriptar
+          username: formData.username,
+          password: formData.password,
         }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
-        onSave(data.data); // Llamar a la función onSave pasando los datos que devuelve el backend
+        onSave(data.data);
       } else {
         alert('Error al registrar usuario: ' + data.message);
       }
@@ -68,7 +70,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
       alert('Hubo un problema con la conexión');
     }
   };
-  
+
   const handleCancel = () => {
     setIsCancelModalOpen(true);
   }
@@ -82,139 +84,171 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
     setIsCancelModalOpen(false);
   }
 
-  const [errorMessage, setErrorMessage] = useState('');
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const password = e.target.value;
+    setFormData({ ...formData, password });
 
-const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const password = e.target.value;
-  setFormData({ ...formData, password });
-  
-  // Validación básica (puedes mejorarlo con regex o librerías adicionales)
-  if (password.length < 8) {
-    setErrorMessage('La contraseña debe tener al menos 8 caracteres.');
-  } else if (!/[A-Z]/.test(password)) {
-    setErrorMessage('La contraseña debe contener al menos una letra mayúscula.');
-  } else if (!/[0-9]/.test(password)) {
-    setErrorMessage('La contraseña debe contener al menos un número.');
-  } else if (!/[!@#$%^&*]/.test(password)) {
-    setErrorMessage('La contraseña debe incluir un carácter especial (!@#$%^&*)');
-  } else {
-    setErrorMessage('');
-  }
-};
+    if (password.length < 8) {
+      setErrorMessage('La contraseña debe tener al menos 8 caracteres.');
+    } else if (!/[A-Z]/.test(password)) {
+      setErrorMessage('La contraseña debe contener al menos una letra mayúscula.');
+    } else if (!/[0-9]/.test(password)) {
+      setErrorMessage('La contraseña debe contener al menos un número.');
+    } else if (!/[!@#$%^&*]/.test(password)) {
+      setErrorMessage('La contraseña debe incluir un carácter especial (!@#$%^&*)');
+    } else {
+      setErrorMessage('');
+    }
+  };
 
   return (
     <>
-<div className="flex justify-center items-center fixed inset-0 z-10">
-<div className={`w-full max-w-[425px] max-h-[95vh] bg-white p-4 rounded-md shadow-lg ${errorMessage ? 'scroll-hidden' : ''}`}>
-<form onSubmit={handleSubmit} className="space-y-4 mt-0 flex flex-col min-h-full">          <div className="grid gap-2">
-  <Label htmlFor="nombre">Nombre Completo</Label>
-  <Input
-    id="nombre"
-    value={formData.nombre}
-    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-    onKeyPress={(e) => {
-      // Permite solo letras y espacios
-      if (!/[a-zA-Z\s]/.test(e.key)) {
-        e.preventDefault(); // Evita que se ingrese un carácter no permitido
-      }
-    }}
-    required
-  />
-</div>
-            <div className="grid gap-2">
-              <Label htmlFor="email">Correo Electrónico</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
+      <div className="flex justify-center items-center fixed inset-0 z-10">
+        <div className={`w-full max-w-[800px] max-h-[95vh] bg-white p-4 rounded-md shadow-lg ${errorMessage ? 'scroll-hidden' : ''}`}>
+          <form onSubmit={handleSubmit} className="space-y-4 mt-0">
+            {/* Contenedor flexible para las columnas */}
+            <div className="flex space-x-6">
+              {/* Columna izquierda */}
+              <div className="flex-1 space-y-4">
+                <div>
+                  <Label htmlFor="nombre">Nombre</Label>
+                  <Input
+                    id="nombre"
+                    value={formData.nombre}
+                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                    onKeyPress={(e) => {
+                      if (!/[a-zA-Z\s]/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="apellido">Apellido</Label>
+                  <Input
+                    id="apellido"
+                    value={formData.apellido}
+                    onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
+                    onKeyPress={(e) => {
+                      if (!/[a-zA-Z\s]/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="email">Correo Electrónico</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="empresa">Empresa</Label>
+                  <Input
+                    id="empresa"
+                    value={formData.empresa}
+                    onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Columna derecha */}
+              <div className="flex-1 space-y-4">
+                <div>
+                  <Label htmlFor="cuil">CUIL</Label>
+                  <Input
+                    id="cuil"
+                    value={formData.cuil}
+                    onChange={(e) => setFormData({ ...formData, cuil: e.target.value })}
+                    onKeyPress={(e) => {
+                      if (!/[0-9]/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="descripcion">Descripción</Label>
+                  <Input
+                    id="descripcion"
+                    value={formData.descripcion}
+                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="username">Usuario</Label>
+                  <Input
+                    id="username"
+                    value={formData.username}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="password">Contraseña</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handlePasswordChange}
+                    required={!user}
+                    minLength={8}
+                    maxLength={20}
+                    pattern="^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*.,:\-])[A-Za-z0-9!@#$%^&*.,:\-]{8,20}$"
+                    title="La contraseña debe tener entre 8 y 20 caracteres, incluir al menos una letra mayúscula, un número y un carácter especial."
+                  />
+                  {errorMessage && <span className="text-red-500 text-sm">{errorMessage}</span>}
+                </div>
+              </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="empresa">Empresa</Label>
-              <Input
-                id="empresa"
-                value={formData.empresa}
-                onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-  <Label htmlFor="cuil">CUIL</Label>
-  <Input
-    id="cuil"
-    value={formData.cuil}
-    onChange={(e) => setFormData({ ...formData, cuil: e.target.value })}
-    onKeyPress={(e) => {
-      // Solo permite números
-      if (!/[0-9]/.test(e.key)) {
-        e.preventDefault(); // Evita que se ingrese un carácter no numérico
-      }
-    }}
-    required
-  />
-</div>
-            <div className="grid gap-2">
-              <Label htmlFor="username">Usuario</Label>
-              <Input
-                id="username"
-                value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-    <Label htmlFor="password">Contraseña</Label>
-    <Input
-      id="password"
-      type="password"
-      value={formData.password}
-      onChange={handlePasswordChange}
-      required={!user}
-      minLength={8}
-      maxLength={20}
-      pattern="^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*.,:\-])[A-Za-z0-9!@#$%^&*.,:\-]{8,20}$"
-      title="La contraseña debe tener entre 8 y 20 caracteres, incluir al menos una letra mayúscula, un número y un carácter especial."
-    />
-    {errorMessage && <span className="text-red-500 text-sm">{errorMessage}</span>}
-  </div>
-            <div className="grid gap-2">
-              <Label htmlFor="descripcion">Descripción</Label>
-              <Input
-                id="descripcion"
-                value={formData.descripcion}
-                onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="preferencia"
-                checked={formData.preferencia}
-                onCheckedChange={(checked) => 
-                  setFormData({ ...formData, preferencia: checked as boolean })
-                }
-              />
-              <Label htmlFor="preferencia">Preferencia</Label>
-            </div>
-            <div className="flex justify-end space-x-4 mt-4"> {/* Aquí cambiamos space-x-4 por space-x-2 */}
-              <Button type="button" variant="outline" onClick={handleCancel}>
-                Cancelar
-              </Button>
-              <Button type="submit" onClick={handleSubmit}>
+
+            {/* Contenedor para Preferencia y Botones */}
+            <div className="flex justify-between items-center mt-6">
+              {/* Preferencia alineada a la izquierda */}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="preferencia"
+                  checked={formData.preferencia}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, preferencia: checked as boolean })
+                  }
+                />
+                <Label htmlFor="preferencia">Preferencia</Label>
+              </div>
+
+              {/* Botones alineados a la derecha */}
+              <div className="flex space-x-4">
+                <Button type="button" variant="outline" onClick={handleCancel}>
+                  Cancelar
+                </Button>
+                <Button type="submit">
                   {user ? 'Guardar cambios' : 'Crear usuario'}
-            </Button>
+                </Button>
+              </div>
             </div>
           </form>
         </div>
       </div>
 
-      {/* Modal que aparece sobre el formulario */}
+      {/* Modal de cancelación */}
       <Modal isOpen={isCancelModalOpen} onClose={cancelCancel}>
         <div className="z-50">
-          <h2>{user ? "¿Estás seguro de que deseas cancelar la edición del usuario?" : "¿Estás seguro de que deseas cancelar la creación del usuario?"}
-          </h2>
-          <div className="flex justify-center gap-2 mt-4 space-x-16">
+          <h2>{user ? "¿Estás seguro de que deseas cancelar la edición del usuario?" : "¿Estás seguro de que deseas cancelar la creación del usuario?"}</h2>
+          <div className="flex justify-center gap-2 mt-4">
             <Button onClick={cancelCancel} variant="outline">
               No
             </Button>
@@ -223,7 +257,7 @@ const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             </Button>
           </div>
         </div>
-      </Modal> 
+      </Modal>
     </>
   )
 }

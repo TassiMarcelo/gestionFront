@@ -24,7 +24,7 @@ console.log(user.username);
         <div className="space-y-4">
           <div>
             <h4 className="font-medium">Nombre Completo</h4>
-            <p className="text-sm text-muted-foreground">{user.nombre}</p>
+            <p className="text-sm text-muted-foreground"> {`${user.nombre} ${user.apellido}`}</p>
           </div>
           <div>
             <h4 className="font-medium">Correo Electrónico</h4>

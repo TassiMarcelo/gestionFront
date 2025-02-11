@@ -3,6 +3,7 @@ export interface User {
     cuil: string
     email: string
     nombre: string
+    apellido: string
     empresa: string
     descripcion: string
     preferencia: boolean
