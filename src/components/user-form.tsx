@@ -23,7 +23,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
       empresa: '',
       descripcion: '',
       preferencia: false,
-      usuario: '',
+      username: '',
       password: ''
     }
   )
@@ -51,7 +51,7 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
           empresa: formData.empresa,
           descripcion: formData.descripcion,
           preferencia: formData.preferencia,
-          usuario: formData.usuario,  // Asegúrate de enviar "usuario" como el nombre de campo
+          username: formData.username,  // Asegúrate de enviar "usuario" como el nombre de campo
           password: formData.password,  // Enviar la contraseña sin encriptar
         }),
       });
@@ -156,11 +156,11 @@ const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   />
 </div>
             <div className="grid gap-2">
-              <Label htmlFor="usuario">Usuario</Label>
+              <Label htmlFor="username">Usuario</Label>
               <Input
-                id="usuario"
-                value={formData.usuario}
-                onChange={(e) => setFormData({ ...formData, usuario: e.target.value })}
+                id="username"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 required
               />
             </div>

@@ -6,7 +6,7 @@ export interface User {
     empresa: string
     descripcion: string
     preferencia: boolean
-    usuario: string
+    username: string
     password: string
   }
   

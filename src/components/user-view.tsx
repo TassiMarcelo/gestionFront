@@ -1,14 +1,20 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import type { User } from '@/types/user' // Update: import path changed
+import type { User } from '@/types/user'
+import { useEffect, useState } from 'react'
 
 interface UserViewProps {
-  user: User
+  user: User 
   onClose: () => void
 }
 
 export function UserView({ user, onClose }: UserViewProps) {
+console.log(user.username);
+  if (!user) {
+    return <div>No se encontraron detalles del usuario.</div>
+  }
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -34,7 +40,7 @@ export function UserView({ user, onClose }: UserViewProps) {
           </div>
           <div>
             <h4 className="font-medium">Usuario</h4>
-            <p className="text-sm text-muted-foreground">{user.usuario}</p>
+            <p className="text-sm text-muted-foreground">{user.username ?? 'No disponible'}</p>
           </div>
           <div>
             <h4 className="font-medium">Descripción</h4>
@@ -49,4 +55,3 @@ export function UserView({ user, onClose }: UserViewProps) {
     </Dialog>
   )
 }
-
