@@ -9,5 +9,7 @@ export interface User {
     preferencia: boolean
     username: string
     password: string
+    activado: any
+    role: any
   }
   

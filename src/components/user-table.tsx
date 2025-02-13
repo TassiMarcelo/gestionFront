@@ -93,14 +93,24 @@ export function UserTable() {
   }
 
   const handleSave = (user: User) => {
-    if (selectedUser) {
-      setUsers(users.map(u => u.id === user.id ? user : u))
-    } else {
-      setUsers([{ ...user, id: Date.now().toString() }, ...users])
+    console.log("Usuario recibido en handleSave:", user); // Depuración
+  
+    if (!user || !user.id) {
+      console.error("Usuario no válido:", user);
+      return;
     }
-    setShowForm(false)
-    setSelectedUser(null)
-  }
+  
+    if (selectedUser) {
+      // Actualizar usuario existente
+      setUsers(users.map(u => u.id === user.id ? user : u));
+    } else {
+      // Crear nuevo usuario
+      setUsers([user, ...users]); // Usar el usuario devuelto por el backend
+    }
+  
+    setShowForm(false);
+    setSelectedUser(null);
+  };
 
   return (
     <div className="space-y-4">

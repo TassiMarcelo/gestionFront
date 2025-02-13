@@ -34,40 +34,65 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (errorMessage) {
       return;
     }
-
+  
     try {
-      const response = await fetch('http://localhost:8080/usuarios/registrar', {
-        method: 'POST',
+      const url = user ? `http://localhost:8080/usuarios/${user.id}/update` : 'http://localhost:8080/usuarios/registrar';
+      const method = user ? 'PUT' : 'POST';
+  
+      const requestBody: any = {
+        cuil: formData.cuil,
+        email: formData.email,
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        empresa: formData.empresa,
+        descripcion: formData.descripcion,
+        preferencia: formData.preferencia,
+        username: formData.username,
+        role: formData.role,
+        activado: formData.activado,
+      };
+  
+      if (!user) {
+        requestBody.password = formData.password;
+      }
+  
+      console.log("URL:", url);
+      console.log("Método:", method);
+      console.log("Cuerpo de la solicitud:", requestBody);
+  
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          cuil: formData.cuil,
-          email: formData.email,
-          nombre: formData.nombre,
-          apellido: formData.apellido,
-          empresa: formData.empresa,
-          descripcion: formData.descripcion,
-          preferencia: formData.preferencia,
-          username: formData.username,
-          password: formData.password,
-        }),
+        body: JSON.stringify(requestBody),
       });
-
+  
+      console.log("Respuesta del servidor:", response);
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorMessage = errorData.message || errorData.error || 'Error desconocido';
+        throw new Error(errorMessage);
+      }
+  
       const data = await response.json();
-
-      if (response.ok) {
-        onSave(data.data);
+      console.log("Respuesta completa del servidor:", data);
+  
+      if (!data || data.data === null) {
+        // Si el servidor no devuelve el usuario actualizado, usa el formulario actual
+        onSave({ ...formData, id: user?.id } as User);
       } else {
-        alert('Error al registrar usuario: ' + data.message);
+        // Si el servidor devuelve el usuario actualizado, úsalo
+        onSave(data.data);
       }
     } catch (error) {
       console.error('Error en la solicitud:', error);
-      alert('Hubo un problema con la conexión');
+      alert(error.message || 'Hubo un problema con la conexión');
     }
   };
 
@@ -200,17 +225,27 @@ export function UserForm({ user, onSave, onCancel }: UserFormProps) {
 
                 <div>
                   <Label htmlFor="password">Contraseña</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={handlePasswordChange}
-                    required={!user}
-                    minLength={8}
-                    maxLength={20}
-                    pattern="^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*.,:\-])[A-Za-z0-9!@#$%^&*.,:\-]{8,20}$"
-                    title="La contraseña debe tener entre 8 y 20 caracteres, incluir al menos una letra mayúscula, un número y un carácter especial."
-                  />
+                  {user ? (
+                    <Input
+                      id="password"
+                      type="text"
+                      value="*********"
+                      disabled
+                      className="bg-gray-400 cursor-not-allowed" 
+                    />
+                  ) : (
+                    <Input
+                      id="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={handlePasswordChange}
+                      required
+                      minLength={8}
+                      maxLength={20}
+                      pattern="^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*.,:\-])[A-Za-z0-9!@#$%^&*.,:\-]{8,20}$"
+                      title="La contraseña debe tener entre 8 y 20 caracteres, incluir al menos una letra mayúscula, un número y un carácter especial."
+                    />
+                  )}
                   {errorMessage && <span className="text-red-500 text-sm">{errorMessage}</span>}
                 </div>
               </div>
